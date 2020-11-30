@@ -5,13 +5,18 @@ import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.ParcelFileDescriptor;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -25,11 +30,14 @@ import androidx.core.app.NotificationCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
 import androidx.fragment.app.Fragment;
+import androidx.loader.content.CursorLoader;
 
 import java.io.File;
+import java.io.FileDescriptor;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -54,6 +62,8 @@ import fr.polytech.larynxapp.model.analysis.PitchProcessor;
 import fr.polytech.larynxapp.model.analysis.Yin;
 import fr.polytech.larynxapp.model.audio.AudioData;
 import fr.polytech.larynxapp.model.database.DBManager;
+
+import static android.app.Activity.RESULT_OK;
 
 public class HomeFragment extends Fragment {
 
@@ -165,6 +175,12 @@ public class HomeFragment extends Fragment {
      */
     private NotificationManager mNotificationManager;
 
+    private Button btn_import;
+    private AudioDispatcher dispatcherFile;
+    private String AudioFilePath;
+    private Intent filePickerIntent;
+    private InputStream inputPFD;
+
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -187,8 +203,40 @@ public class HomeFragment extends Fragment {
                 true,
                 ByteOrder.LITTLE_ENDIAN.equals(ByteOrder.nativeOrder()));
 
+        btn_import = root.findViewById(R.id.btn_import);
+
+        btn_import.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                filePickerIntent = new Intent(Intent.ACTION_GET_CONTENT);
+                filePickerIntent.setType("audio/*");
+                startActivityForResult(filePickerIntent,10);
+                manager.updateRecordVoiceFeatures(fileName, jitter, shimmer, f0);
+            }
+        });
+
         updateView();
         return root;
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent returnIntent) {
+        if (resultCode != RESULT_OK && requestCode!=10) {
+            return;
+        }
+        else {
+            Uri selectAudioFile = returnIntent.getData();
+
+            try {
+                AudioFilePath=getRealPathFromURI(getContext(),selectAudioFile);
+                inputPFD = getContext().getContentResolver().openInputStream(selectAudioFile);
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+                return;
+            }
+            addPich(dispatcherFile,AudioFilePath);
+            analyseData(inputPFD);
+        }
     }
 
     /**
@@ -242,7 +290,14 @@ public class HomeFragment extends Fragment {
                     public void onClick(View v) {
                         save();
                         createRecordingNotification();
-                        analyseData();
+                        File file = new File(finalPath);
+                        try {
+                            InputStream inputStream = new FileInputStream(file);
+                            analyseData(inputStream);
+                        } catch (FileNotFoundException e) {
+                            e.printStackTrace();
+                        }
+
                         manager.updateRecordVoiceFeatures(fileName, jitter, shimmer, f0);
 
                         updateView(Status_mic.DEFAULT);
@@ -259,6 +314,24 @@ public class HomeFragment extends Fragment {
         }
     }
 
+    private void addPich(AudioDispatcher dispatcherFile, String pathFile){
+        //AudioDispatcher dispatcher = new AudioDispatcher(new UniversalAudioInputStream(inStream, new TarsosDSPAudioFormat(sampleRate, bufferSize, 1, true, true)), bufferSize, bufferOverlap);
+        dispatcherFile = AudioDispatcherFactory.fromPipe(pathFile,44100, 2048, 0);
+
+
+        PitchDetectionHandler pitchDetectionHandler = new PitchDetectionHandler() {
+            @Override
+            public void handlePitch(PitchDetectionResult res, AudioEvent e){
+                float pitchInHz = res.getPitch();
+                if(pitchInHz != -1 && pitchInHz < 400)
+                    pitches.add(pitchInHz);
+            }
+        };
+
+        AudioProcessor pitchProcessor = new PitchProcessor(new Yin(44100, 2048), 44100, 2048, pitchDetectionHandler);
+        dispatcherFile.addAudioProcessor(pitchProcessor);
+    }
+
     /**
      * Starts the recording
      */
@@ -270,6 +343,7 @@ public class HomeFragment extends Fragment {
             }
             pitches = new ArrayList<>();
             dispatcher = AudioDispatcherFactory.fromDefaultMicrophone(44100, 2048, 0);
+
 
             File file = new File(FILE_PATH + File.separator + FILE_NAME);
             RandomAccessFile randomAccessFile = null;
@@ -504,30 +578,11 @@ public class HomeFragment extends Fragment {
     /**
      * Runs the analyse of the data.
      */
-    public void analyseData() {
+    public void analyseData(InputStream inputStream) {
 
         AudioData audioData = new AudioData();
-        boolean fileOK;
-
-        File file = new File(finalPath);
-        try {
-            if (!file.exists())
-                //noinspection ResultOfMethodCallIgnored we don't need the result because we try to create only if the file doesn't exist.
-                file.createNewFile();
-
-            fileOK = true;
-        }
-        catch (IOException e) {
-            Log.e("AnalyseData", e.getMessage(), e);
-            fileOK = false;
-        }
-
-        if (!fileOK) {
-            return;
-        }
 
         try {
-            FileInputStream inputStream = new FileInputStream(file);
             byte[] b = new byte[inputStream.available()];
             inputStream.read(b);
             short[] s = new short[(b.length - 44) / 2];
@@ -592,5 +647,21 @@ public class HomeFragment extends Fragment {
         mNotificationManager = (NotificationManager) getContext().getSystemService(Context.NOTIFICATION_SERVICE);
 
         mNotificationManager.notify(0, notification);
+    }
+
+    public static String getRealPathFromURI(Context context, Uri contentUri) {
+        String[] proj = {MediaStore.Audio.Media.DATA};
+        String result = null;
+
+        CursorLoader cursorLoader = new CursorLoader(context, contentUri, proj, null, null, null);
+        Cursor cursor = cursorLoader.loadInBackground();
+
+        if (cursor != null) {
+            int column_index = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DATA);
+            cursor.moveToFirst();
+            result = cursor.getString(column_index);
+            cursor.close();
+        }
+        return result;
     }
 }

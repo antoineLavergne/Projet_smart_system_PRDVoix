@@ -11,4 +11,5 @@
     <string name="dateLabelText">Sélectionner une période</string>
     <string name="text_analysing_and_recording_data">Enregistrement et analyse de votre voix en cours</string>
     <string name="text_pls_wait">Merci de bien vouloir patienter…</string>
+    <string name="import_record">Import Record</string>
 </resources>
