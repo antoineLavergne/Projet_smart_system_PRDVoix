@@ -1,0 +1,9 @@
+fr.polytech.larynxapp
+fr.polytech.larynxapp.controller.Shimmer
+fr.polytech.larynxapp.controller.analysis
+fr.polytech.larynxapp.controller.history
+fr.polytech.larynxapp.controller.home
+fr.polytech.larynxapp.controller.jitter
+fr.polytech.larynxapp.model
+fr.polytech.larynxapp.model.audio
+fr.polytech.larynxapp.model.database

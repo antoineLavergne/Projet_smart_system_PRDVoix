@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="Gradle: me.rosuh:AndroidFilePicker:0.7.0-x@aar">
+    <CLASSES>
+      <root url="file://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/1f454fe0552b73497522b9b9f088e073/jetified-AndroidFilePicker-0.7.0-x/AndroidManifest.xml" />
+      <root url="jar://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/1f454fe0552b73497522b9b9f088e073/jetified-AndroidFilePicker-0.7.0-x/jars/classes.jar!/" />
+      <root url="file://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/1f454fe0552b73497522b9b9f088e073/jetified-AndroidFilePicker-0.7.0-x/res" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/me.rosuh/AndroidFilePicker/0.7.0-x/39046e88e0e927b22783d943d84e8c9f3647aa90/AndroidFilePicker-0.7.0-x-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

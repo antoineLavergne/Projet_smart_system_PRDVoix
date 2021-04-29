@@ -1,0 +1,46 @@
+fr/polytech/larynxapp/model/audio/AudioData.java
+ fr.polytech.larynxapp.model.audio.AudioData
+fr/polytech/larynxapp/model/Record.java
+ fr.polytech.larynxapp.model.Record
+fr/polytech/larynxapp/controller/history/HistoryFragment.java
+ fr.polytech.larynxapp.controller.history.HistoryFragment
+ fr.polytech.larynxapp.controller.history.HistoryFragment$1
+ fr.polytech.larynxapp.controller.history.HistoryFragment$1$1
+fr/polytech/larynxapp/controller/analysis/PitchProcessor.java
+ fr.polytech.larynxapp.controller.analysis.PitchProcessor
+fr/polytech/larynxapp/controller/home/HomeFragment.java
+ fr.polytech.larynxapp.controller.home.HomeFragment
+ fr.polytech.larynxapp.controller.home.HomeFragment$1
+ fr.polytech.larynxapp.controller.home.HomeFragment$2
+ fr.polytech.larynxapp.controller.home.HomeFragment$3
+ fr.polytech.larynxapp.controller.home.HomeFragment$4
+ fr.polytech.larynxapp.controller.home.HomeFragment$5
+ fr.polytech.larynxapp.controller.home.HomeFragment$6
+ fr.polytech.larynxapp.controller.home.HomeFragment$7
+ fr.polytech.larynxapp.controller.home.HomeFragment$8
+ fr.polytech.larynxapp.controller.home.HomeFragment$8$1
+ fr.polytech.larynxapp.controller.home.HomeFragment$9
+fr/polytech/larynxapp/controller/jitter/JitterFragment.java
+ fr.polytech.larynxapp.controller.jitter.JitterFragment
+ fr.polytech.larynxapp.controller.jitter.JitterFragment$1
+ fr.polytech.larynxapp.controller.jitter.JitterFragment$1$1
+ fr.polytech.larynxapp.controller.jitter.JitterFragment$2
+fr/polytech/larynxapp/model/database/DBHelper.java
+ fr.polytech.larynxapp.model.database.DBHelper
+fr/polytech/larynxapp/MainActivity.java
+ fr.polytech.larynxapp.MainActivity
+fr/polytech/larynxapp/BuildConfig.java
+ fr.polytech.larynxapp.BuildConfig
+fr/polytech/larynxapp/model/database/DBManager.java
+ fr.polytech.larynxapp.model.database.DBManager
+fr/polytech/larynxapp/controller/Shimmer/ShimmerFragment.java
+ fr.polytech.larynxapp.controller.Shimmer.ShimmerFragment
+ fr.polytech.larynxapp.controller.Shimmer.ShimmerFragment$1
+ fr.polytech.larynxapp.controller.Shimmer.ShimmerFragment$1$1
+ fr.polytech.larynxapp.controller.Shimmer.ShimmerFragment$2
+fr/polytech/larynxapp/controller/analysis/FeaturesCalculator.java
+ fr.polytech.larynxapp.controller.analysis.FeaturesCalculator
+fr/polytech/larynxapp/controller/home/Status_mic.java
+ fr.polytech.larynxapp.controller.home.Status_mic
+fr/polytech/larynxapp/controller/analysis/Yin.java
+ fr.polytech.larynxapp.controller.analysis.Yin
