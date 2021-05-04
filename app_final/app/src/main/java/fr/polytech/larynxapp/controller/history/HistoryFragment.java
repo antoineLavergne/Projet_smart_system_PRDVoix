@@ -12,9 +12,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.ListView;
+import android.widget.ExpandableListView;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
@@ -24,12 +22,10 @@ import fr.polytech.larynxapp.model.Record;
 import fr.polytech.larynxapp.model.database.DBManager;
 
 import com.github.mikephil.charting.data.Entry;
-import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
-import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
 
 import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
 
 public class HistoryFragment extends Fragment {
     private SparseBooleanArray mSelectedItemsIds;
@@ -38,48 +34,50 @@ public class HistoryFragment extends Fragment {
     /**
      * The UI list of the data
      */
-    private ListView listView;
+    private ExpandableListView expandableListView;
 
     /**
      * The list of record datas
      */
-    private List<Record> records;
+    private ArrayList<Record> listGroup;
+    private HashMap<String, ArrayList<String>> listItem;
 
-
+    /*
+    Adapter
+     */
+    private ExpendableListAdapter adapter;
 
     /**
-     * @param inflater           Used to load the xml layout file as View
+     * @param inflater           Used to load the xml layout file as Viewstr
      * @param container          A container component
      * @param savedInstanceState Used to save activity
      * @return Return a history's view object
      */
-    public View onCreateView(@NonNull LayoutInflater inflater,
-                             ViewGroup container, Bundle savedInstanceState) {
-        View root = inflater.inflate(R.layout.fragment_history, container, false);      //Sets the view for the fragment
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        View root = inflater.inflate(R.layout.fragment_history, container, false);   //Sets the view for the fragment
+        expandableListView = root.findViewById(R.id.listViewRecords);
+        listGroup = new ArrayList<>();
+        listItem = new HashMap<String, ArrayList<String>>();
+        mSelectedItemsIds = new  SparseBooleanArray();
         initMap();
+        adapter = new ExpendableListAdapter(this.getContext(), listGroup,listItem);
+        expandableListView.setAdapter(adapter);
 
-        //********************************Creation of the line chart*******************************/
-        final ArrayList<ILineDataSet> dataSets = new ArrayList<>();
-        if(!records.isEmpty() ){
-            LineDataSet lineDataSet = new LineDataSet(dataValues(records.get(0)), records.get(0).getName());
-            setLineData(lineDataSet);
-            dataSets.add((lineDataSet));
-            final LineData data = new LineData(dataSets);
 
-        }
+
+
 
         //***********************************Creation of the list**********************************/
-        mSelectedItemsIds = new  SparseBooleanArray();
-        listView = root.findViewById(R.id.listViewRecords);
 
-        final ArrayAdapter<Record> adapter = new ArrayAdapter<>(getActivity().getApplicationContext(),
-                android.R.layout.simple_list_item_multiple_choice, records);
 
-        listView.setAdapter(adapter);
+//        final ArrayAdapter<Record> adapter = new ArrayAdapter<>(getActivity().getApplicationContext(),
+//                android.R.layout.simple_list_item_multiple_choice, records);
 
-        listView.setChoiceMode(listView.CHOICE_MODE_MULTIPLE_MODAL);
-        listView.setItemsCanFocus(false);
-        listView.setMultiChoiceModeListener(new AbsListView.MultiChoiceModeListener() {
+//        expandableListView.setAdapter(adapter);
+
+        expandableListView.setChoiceMode(expandableListView.CHOICE_MODE_MULTIPLE_MODAL);
+        expandableListView.setItemsCanFocus(false);
+        expandableListView.setMultiChoiceModeListener(new AbsListView.MultiChoiceModeListener() {
 
 
             @Override
@@ -102,13 +100,13 @@ public class HistoryFragment extends Fragment {
                 switch (item.getItemId()) {
                     case R.id.selectAll:
 
-                        final int checkedCount = records.size();
+                        final int checkedCount = listGroup.size();
                         removeSelection(adapter);
 
                         for (int i = 0; i < checkedCount; i++) {
-                            listView.setItemChecked(i, true);
+                            expandableListView.setItemChecked(i, true);
                         }
-                        mode.setTitle(checkedCount + "  Selected");
+                        mode.setTitle(checkedCount + "  Séléctionné");
                         return true;
 
                     case R.id.delete:
@@ -130,8 +128,10 @@ public class HistoryFragment extends Fragment {
                                 SparseBooleanArray selected = mSelectedItemsIds;
                                 for (int i = (selected.size() - 1); i >= 0; i--) {
                                     if (selected.valueAt(i)) {
-                                        Record selecteditem = adapter.getItem(selected.keyAt(i));
+                                        Record selecteditem = adapter.getGroup(selected.keyAt(i));
                                         // Remove  selected items following the ids
+                                        listItem.remove(selecteditem.getName());
+                                        listGroup.remove(selecteditem);
                                         adapter.remove(selecteditem);
                                         new DBManager(getContext()).deleteByName(selecteditem.getName());
                                     }
@@ -159,7 +159,7 @@ public class HistoryFragment extends Fragment {
 
             public void onItemCheckedStateChanged(ActionMode mode, int position, long id, boolean checked) {
 
-                final int checkedCount = listView.getCheckedItemCount();
+                final int checkedCount = expandableListView.getCheckedItemCount();
                 // Set the  CAB title according to total checked items
                 mode.setTitle(checkedCount + "  Séléctionné");
                 // Calls  toggleSelection method from ListViewAdapter Class
@@ -197,10 +197,17 @@ public class HistoryFragment extends Fragment {
      * Initialisation of the data's map
      */
     private void initMap() {
-        records = new DBManager(getContext()).query();
+        listGroup = new DBManager(getContext()).query();
+        for(Record record : listGroup){
+            ArrayList<String> items = new ArrayList<>();
+            items.add("Jitter : "+Double.toString(record.getJitter()));
+            items.add("Shimmer : "+Double.toString(record.getShimmer()));
+            listItem.put(record.getName(),items);
+        }
+
     }
 
-    public void removeSelection(ArrayAdapter<Record> adapter) {
+    public void removeSelection(ExpendableListAdapter adapter) {
 
         mSelectedItemsIds = new SparseBooleanArray();
 
@@ -209,7 +216,7 @@ public class HistoryFragment extends Fragment {
     }
 
     // Item checked on selection
-    public void selectView(int position, boolean value,ArrayAdapter<Record> adapter ) {
+    public void selectView(int position, boolean value,ExpendableListAdapter adapter ) {
         if (value)
             mSelectedItemsIds.put(position, value);
         else
@@ -218,7 +225,7 @@ public class HistoryFragment extends Fragment {
         adapter.notifyDataSetChanged();
     }
 
-    public void  toggleSelection(int position,ArrayAdapter<Record> adapter) {
+    public void  toggleSelection(int position,ExpendableListAdapter adapter) {
         selectView(position, !mSelectedItemsIds.get(position),adapter);
     }
 

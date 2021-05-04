@@ -621,7 +621,7 @@ public class HomeFragment extends Fragment {
     public void save() {
         DateFormat dateFormat  = new SimpleDateFormat( "dd-MM-yyyy HH-mm-ss" );
         Date currentDate = new Date( System.currentTimeMillis() );
-        fileName = dateFormat.format( currentDate );
+        fileName = "    "+dateFormat.format( currentDate );
         String newPath = FILE_PATH + File.separator + fileName + ".wav";
 
         if ( renameFile( finalPath, newPath ) ) {

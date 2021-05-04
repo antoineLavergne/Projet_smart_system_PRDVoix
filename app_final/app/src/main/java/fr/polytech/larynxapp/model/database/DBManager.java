@@ -6,7 +6,6 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import fr.polytech.larynxapp.model.Record;
 
@@ -113,7 +112,7 @@ public class DBManager {
 	 *
 	 * @return the list of all the Records
 	 */
-	public List<Record> query() {
+	public ArrayList<Record> query() {
 		ArrayList<Record> records = new ArrayList<>();
 		Cursor c       = queryTheCursor();
 		while ( c.moveToNext() ) {
