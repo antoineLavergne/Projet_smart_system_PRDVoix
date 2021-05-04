@@ -2,10 +2,8 @@ fr/polytech/larynxapp/model/audio/AudioData.java
  fr.polytech.larynxapp.model.audio.AudioData
 fr/polytech/larynxapp/model/Record.java
  fr.polytech.larynxapp.model.Record
-fr/polytech/larynxapp/controller/history/HistoryFragment.java
- fr.polytech.larynxapp.controller.history.HistoryFragment
- fr.polytech.larynxapp.controller.history.HistoryFragment$1
- fr.polytech.larynxapp.controller.history.HistoryFragment$1$1
+fr/polytech/larynxapp/controller/analysis/Yin.java
+ fr.polytech.larynxapp.controller.analysis.Yin
 fr/polytech/larynxapp/controller/analysis/PitchProcessor.java
  fr.polytech.larynxapp.controller.analysis.PitchProcessor
 fr/polytech/larynxapp/controller/home/HomeFragment.java
@@ -42,5 +40,8 @@ fr/polytech/larynxapp/controller/analysis/FeaturesCalculator.java
  fr.polytech.larynxapp.controller.analysis.FeaturesCalculator
 fr/polytech/larynxapp/controller/home/Status_mic.java
  fr.polytech.larynxapp.controller.home.Status_mic
-fr/polytech/larynxapp/controller/analysis/Yin.java
- fr.polytech.larynxapp.controller.analysis.Yin
+fr/polytech/larynxapp/controller/history/HistoryFragment.java
+ fr.polytech.larynxapp.controller.history.HistoryFragment
+ fr.polytech.larynxapp.controller.history.HistoryFragment$1
+ fr.polytech.larynxapp.controller.history.HistoryFragment$1$1
+ fr.polytech.larynxapp.controller.history.HistoryFragment$1$2
