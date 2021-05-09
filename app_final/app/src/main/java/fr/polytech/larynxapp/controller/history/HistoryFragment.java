@@ -2,7 +2,6 @@ package fr.polytech.larynxapp.controller.history;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.util.SparseBooleanArray;
 import android.view.ActionMode;
@@ -17,15 +16,12 @@ import android.widget.ExpandableListView;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+
 import fr.polytech.larynxapp.R;
 import fr.polytech.larynxapp.model.Record;
 import fr.polytech.larynxapp.model.database.DBManager;
-
-import com.github.mikephil.charting.data.Entry;
-import com.github.mikephil.charting.data.LineDataSet;
-
-import java.util.ArrayList;
-import java.util.HashMap;
 
 public class HistoryFragment extends Fragment {
     private SparseBooleanArray mSelectedItemsIds;
@@ -42,8 +38,8 @@ public class HistoryFragment extends Fragment {
     private ArrayList<Record> listGroup;
     private HashMap<String, ArrayList<String>> listItem;
 
-    /*
-    Adapter
+    /**
+     * Adapter
      */
     private ExpendableListAdapter adapter;
 
@@ -58,25 +54,16 @@ public class HistoryFragment extends Fragment {
         expandableListView = root.findViewById(R.id.listViewRecords);
         listGroup = new ArrayList<>();
         listItem = new HashMap<String, ArrayList<String>>();
-        mSelectedItemsIds = new  SparseBooleanArray();
+        mSelectedItemsIds = new SparseBooleanArray();
         initMap();
-        adapter = new ExpendableListAdapter(this.getContext(), listGroup,listItem);
+        adapter = new ExpendableListAdapter(this.getContext(), listGroup, listItem);
         expandableListView.setAdapter(adapter);
-
-
-
 
 
         //***********************************Creation of the list**********************************/
 
 
-//        final ArrayAdapter<Record> adapter = new ArrayAdapter<>(getActivity().getApplicationContext(),
-//                android.R.layout.simple_list_item_multiple_choice, records);
-
-//        expandableListView.setAdapter(adapter);
-
         expandableListView.setChoiceMode(expandableListView.CHOICE_MODE_MULTIPLE_MODAL);
-        expandableListView.setItemsCanFocus(false);
         expandableListView.setMultiChoiceModeListener(new AbsListView.MultiChoiceModeListener() {
 
 
@@ -87,7 +74,8 @@ public class HistoryFragment extends Fragment {
             }
 
             @Override
-            public void onDestroyActionMode(ActionMode mode) {}
+            public void onDestroyActionMode(ActionMode mode) {
+            }
 
             @Override
             public boolean onCreateActionMode(ActionMode mode, Menu menu) {
@@ -163,34 +151,31 @@ public class HistoryFragment extends Fragment {
                 // Set the  CAB title according to total checked items
                 mode.setTitle(checkedCount + "  Séléctionné");
                 // Calls  toggleSelection method from ListViewAdapter Class
-                toggleSelection(position,adapter);
+                toggleSelection(position, adapter);
             }
         });
+
+        expandableListView.setOnGroupClickListener(new ExpandableListView.OnGroupClickListener() {
+            @Override
+            public boolean onGroupClick(ExpandableListView parent, View v, int groupPosition, long id) {
+                if (expandableListView.getCheckedItemCount() != 0) {
+                    if (mSelectedItemsIds.get(groupPosition)) {
+                        expandableListView.setItemChecked(groupPosition, false);
+                        mSelectedItemsIds.append(groupPosition, false);
+                    } else {
+                        expandableListView.collapseGroup(groupPosition);
+                        expandableListView.setItemChecked(groupPosition, true);
+                        mSelectedItemsIds.append(groupPosition, true);
+
+                    }
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+        });
+
         return root;
-    }
-
-    /**
-     * Sets the data set's graphical parameters
-     *
-     * @param lineDataSet the data set to configure
-     */
-    private void setLineData(LineDataSet lineDataSet) {
-        lineDataSet.setCircleColor(Color.BLACK);
-        lineDataSet.setCircleRadius(5f);
-        lineDataSet.setCircleHoleRadius(2.5f);
-        lineDataSet.setValueTextSize(0f);
-    }
-
-    /**
-     * Sets the data that will be shown in the chart
-     *
-     * @param recordIn the record that contain shimmer and jitter data
-     * @return the array list that will be shown
-     */
-    private ArrayList<Entry> dataValues(Record recordIn) {
-        ArrayList<Entry> dataVals = new ArrayList<>();
-        dataVals.add(new Entry((float) recordIn.getJitter() * 100, (float) recordIn.getShimmer() * 100));
-        return dataVals;
     }
 
     /**
@@ -198,11 +183,12 @@ public class HistoryFragment extends Fragment {
      */
     private void initMap() {
         listGroup = new DBManager(getContext()).query();
-        for(Record record : listGroup){
+        for (Record record : listGroup) {
             ArrayList<String> items = new ArrayList<>();
-            items.add("Jitter : "+Double.toString(record.getJitter()));
-            items.add("Shimmer : "+Double.toString(record.getShimmer()));
-            listItem.put(record.getName(),items);
+            items.add("Jitter : " + Double.toString(record.getJitter()));
+            items.add("Shimmer : " + Double.toString(record.getShimmer()));
+            items.add("Fréquence fondamental : " + Double.toString(record.getF0()));
+            listItem.put(record.getName(), items);
         }
 
     }
@@ -216,17 +202,19 @@ public class HistoryFragment extends Fragment {
     }
 
     // Item checked on selection
-    public void selectView(int position, boolean value,ExpendableListAdapter adapter ) {
+    public void selectView(int position, boolean value, ExpendableListAdapter adapter) {
         if (value)
             mSelectedItemsIds.put(position, value);
         else
             mSelectedItemsIds.delete(position);
 
+        expandableListView.collapseGroup(position);
         adapter.notifyDataSetChanged();
     }
 
-    public void  toggleSelection(int position,ExpendableListAdapter adapter) {
-        selectView(position, !mSelectedItemsIds.get(position),adapter);
+    public void toggleSelection(int position, ExpendableListAdapter adapter) {
+        selectView(position, !mSelectedItemsIds.get(position), adapter);
     }
+
 
 }

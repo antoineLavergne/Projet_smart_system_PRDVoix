@@ -128,9 +128,9 @@ public class CreateSignal {
 
         // 440 Hz for 1 sec
         double freq = 100.0;
-
+        //Création du signal
         double a[] = note(freq,5,300);
-
+        //Enregistrement du signal
         save("test2.wav",a);
 
         close();
