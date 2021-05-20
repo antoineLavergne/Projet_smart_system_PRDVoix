@@ -11,55 +11,15 @@ import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.SourceDataLine;
 
 public class CreateSignal {
-    public static final int SAMPLE_RATE = 44100;
+    public static final int SAMPLE_RATE = 8000;
 
-    private static final int BYTES_PER_SAMPLE = 2;
-    private static final int BITS_PER_SAMPLE = 16;
     private static final double MAX_16_BIT = 32768;
-    private static final int SAMPLE_BUFFER_SIZE = 4096;
 
     private static final int MONO   = 1;
     private static final boolean LITTLE_ENDIAN = false;
     private static final boolean SIGNED        = true;
 
 
-    private static SourceDataLine line;   // pour jouer le son
-    private static byte[] buffer;         // notre buffer interne
-    private static int bufferSize = 0;    // taille du buffer
-
-    // initialisation
-    static {
-        init();
-    }
-
-    /**
-     * Initialise le player
-     */
-    private static void init() {
-        try {
-            // 44,100 Hz, 16-bit audio, mono, signed PCM, little endian
-            AudioFormat format = new AudioFormat((float) SAMPLE_RATE, BITS_PER_SAMPLE, MONO, SIGNED, LITTLE_ENDIAN);
-            DataLine.Info info = new DataLine.Info(SourceDataLine.class, format);
-
-            line = (SourceDataLine) AudioSystem.getLine(info);
-            line.open(format, SAMPLE_BUFFER_SIZE * BYTES_PER_SAMPLE);
-
-            buffer = new byte[SAMPLE_BUFFER_SIZE * BYTES_PER_SAMPLE/3];
-        }
-        catch (LineUnavailableException e) {
-            System.out.println(e.getMessage());
-        }
-
-        line.start();
-    }
-
-    /**
-     * Fermes le player
-     */
-    public static void close() {
-        line.drain();
-        line.stop();
-    }
 
 
     /**
@@ -113,7 +73,7 @@ public class CreateSignal {
      * @return liste de double représentant le signal
      */
     public static double[] note(double hz, double duration, double amplitude) {
-        int n = (int) (SAMPLE_RATE * duration);
+        int n = (int) (8000 * duration);
         double[] a = new double[n+1];
         for (int i = 0; i <= n; i++)
             a[i] = amplitude * Math.sin(2 * Math.PI * i * hz / SAMPLE_RATE);
@@ -126,13 +86,10 @@ public class CreateSignal {
      */
     public static void main(String[] args) {
 
-        // 440 Hz for 1 sec
-        double freq = 100.0;
+        double freq = 400;
         //Création du signal
-        double a[] = note(freq,5,300);
+        double a[] = note(freq,5,0.2);
         //Enregistrement du signal
-        save("test2.wav",a);
-
-        close();
+        save(freq+".wav",a);
     }
 }

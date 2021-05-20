@@ -185,9 +185,9 @@ public class HistoryFragment extends Fragment {
         listGroup = new DBManager(getContext()).query();
         for (Record record : listGroup) {
             ArrayList<String> items = new ArrayList<>();
-            items.add("Jitter : " + Double.toString(record.getJitter()));
-            items.add("Shimmer : " + Double.toString(record.getShimmer()));
-            items.add("Fréquence fondamental : " + Double.toString(record.getF0()));
+            items.add("Jitter : " + Double.toString((double) Math.round(record.getJitter()*1000)/1000)+" %");
+            items.add("Shimmer : " + Double.toString((double) Math.round(record.getShimmer()*1000)/1000)+" dB");
+            items.add("Fréquence fondamentale : " + Double.toString((double) Math.round(record.getF0()*1000)/1000)+" Hz");
             listItem.put(record.getName(), items);
         }
 
